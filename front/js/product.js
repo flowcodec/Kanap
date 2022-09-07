@@ -7,7 +7,6 @@ const quantSelected = document.querySelector("#quantity");
 // Sélection du bouton Ajouter au panier
 const btnSend = document.querySelector("#addToCart");
 
-// récupération de l'id sur la page précèdante
 const getProductId = () => {
   return new URL(location.href).searchParams.get("id");
 };
@@ -48,6 +47,7 @@ let productSelected = (product) => {
     let option = document.createElement("option");
     option.innerHTML = `${color}`;
     option.value = `${color}`;
+
     colorId.appendChild(option);
   }
 };
@@ -58,7 +58,7 @@ let productRegistered = (product) => {
   // Écoute de l'évènement click sur le bouton ajouter
 
   btnSend.addEventListener("click", (event) => {
-    event.preventDefault(); //empêche l'exécution du comportement par défaut de l'élément quand il reçoit l'événement ;
+    event.preventDefault();
 
     if (colorIdSelected.value == false) {
       confirm("Veuillez sélectionner une couleur");
@@ -67,7 +67,7 @@ let productRegistered = (product) => {
     } else {
       alert("Votre article a bien été ajouté au panier");
 
-      // On enregistre les valeurs dans l'objet optionProduct
+      // Enregistrement des valeurs dans un objet optionProduct
 
       let optionProduct = {
         id: product._id,
@@ -80,15 +80,12 @@ let productRegistered = (product) => {
         price: product.price,
         totalPrice: product.price * parseInt(quantSelected.value, 10),
       };
-      
+  
       /******************************* Le Local Storage ********************/
 
-      //Variable contenant le local storage.
+      //Variable contenant le local storage
       let localStorageProducts = JSON.parse(localStorage.getItem("basket"));
 
-      if (localStorageProducts === null){ 
-        localStorageProducts = [];
-}
       // Si le local storage existe
       if (localStorageProducts) {
         // On rechercher avec la méthode find() si l'id et la couleur d'un article est déjà présent
@@ -99,13 +96,19 @@ let productRegistered = (product) => {
         // Si oui on ajoute juste la nouvelle quantité et la mise à jour du prix à l'article
         if (item) {
           item.quantity = item.quantity + optionProduct.quantity;
-          item.totalPrice += item.price * optionProduct.quantity
+          item.totalPrice += item.price * optionProduct.quantity;
+          localStorage.setItem("basket", JSON.stringify(localStorageProducts));
           return;
         }
         // Si l'article n'est pas déjà dans le local storage alors on push le nouvel article sélectionner
         localStorageProducts.push(optionProduct);
         localStorage.setItem("basket", JSON.stringify(localStorageProducts));
-      } 
+      } else {
+        //  Sinon création d'un tableau dans le lequel on push l'objet "optionProduct"
+        let newTabLocalStorage = [];
+        newTabLocalStorage.push(optionProduct);
+        localStorage.setItem("basket", JSON.stringify(newTabLocalStorage));
+      }
     }
   });
 };

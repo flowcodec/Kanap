@@ -86,8 +86,8 @@ function injectSommeQuant() {
 
   majLocalStorageProducts();
 }
-injectSommeQuant();
 
+injectSommeQuant();
 
 let itemQuantity = Array.from(document.querySelectorAll(".itemQuantity"));
 let sousTotal = Array.from(document.querySelectorAll("#sousTotal"));
@@ -172,7 +172,7 @@ btnValidate.addEventListener("click", (event) => {
 
   // Regex pour le contrôle du champ Adresse
   const regExAdresse = (value) => {
-    return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,2}$/.test(value);
+    return /^[a-zA-Z0-9.,'-_ ]{5,50}[ ]{0,2}$/.test(value);
   };
 
   // Regex pour le contrôle du champ Email

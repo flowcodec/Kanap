@@ -1,13 +1,8 @@
-
-// On récupère les données via une eequête HTTP de type GET vers l'api
+//Requête HTTP de type GET vers l'api
 
 fetch("http://localhost:3000/api/products")
-  .then((response) => {
-    return response.json();
-  })
-
+  .then((response) => {return response.json();})
   .then((products) => {
-    console.log(products);
     // Boucle For Of qui itère dans les products et les affichent sur la page avec innerHTML
     for (data of products) {
       document.getElementById(
