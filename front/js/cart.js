@@ -1,4 +1,4 @@
-//variable pour 
+//variable pour  récupérer les données du panier
 let basket = JSON.parse(localStorage.getItem("basket"));
 
 // Variable pour stocker les id de chaques articles présents dans le panier
@@ -11,45 +11,80 @@ let orderId = "";
 if (basket === null || basket.length === 0) {
  alert ("votre panier est vide")
 }
-  // Récupération des Id de chaque articles
-for (product of basket) {
-  document.querySelector(
-    "#cart__items"
-  ).innerHTML += `<article class="cart__item" data-id="${product._id}" data-color="${product.color}">
-        <div class="cart__item__img">
-            <img src="${product.img}" alt="${product.altTxt}">
-        </div>
-        <div class="cart__item__content">
-            <div class="cart__item__content__description">
-                <h2>${product.name}</h2>
-                <p>Couleur du produit: ${product.color}</p>
-                <p>Prix unitaire: ${product.price}€</p>
-            </div>
-        <div class="cart__item__content__settings">
-            <div id="jojo" class="cart__item__content__settings__quantity">
-                <p id="quantité">Qté : ${product.quantity} </p>
-                <p id="sousTotal">Prix total pour cet article: ${product.totalPrice}€</p> 
-                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.quantity}">
-            </div>
-            <div class="cart__item__content__settings__delete">
-                <p class="deleteItem"><button>Supprimer</button></p>
-            </div>
-        </div>
-        </div>
-     </article>`;
+// on récupère les données de l'API parapport au panier
+async function getTotalProductPriceFromServer(productFromBasket) {
+  const resp = await fetch(`http://localhost:3000/api/products/${productFromBasket.id}`)
+  const productFromServer = await resp.json()
+  const productTotalPrice = productFromBasket.quantity * productFromServer.price
+  return {
+    "productFromBasket": productFromBasket,
+    "productFromServer": productFromServer,
+    "sousTotalProductPrice": productTotalPrice
+  }
+}
+//on insert les élément dans le DOM
+function renderProductsInBasket(results) {
+  results.forEach((result) => {
+    const productFromBasket = result["productFromBasket"]
+    const sousTotalProductPrice = result["sousTotalProductPrice"]
+    const productFromServer = result["productFromServer"]
 
-  // Envoi dans le tableau de la variable products[]
-  products.push(product.id);
+    document.querySelector(
+      "#cart__items"
+    ).innerHTML += `<article class="cart__item" data-id="${productFromBasket._id}" data-color="${productFromBasket.color}">
+          <div class="cart__item__img">
+              <img src="${productFromBasket.img}" alt="${productFromBasket.altTxt}">
+          </div>
+          <div class="cart__item__content">
+              <div class="cart__item__content__description">
+                  <h2>${productFromBasket.name}</h2>
+                  <p>Couleur du produit: ${productFromBasket.color}</p>
+                  <p>Prix unitaire: ${productFromServer.price}€</p>
+              </div>
+          <div class="cart__item__content__settings">
+              <div id="jojo" class="cart__item__content__settings__quantity">
+                  <p id="quantité">Qté : ${productFromBasket.quantity} </p>
+                  <p id="sousTotal">Prix total pour cet article: ${sousTotalProductPrice}€</p> 
+                  <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productFromBasket.quantity}">
+              </div>
+              <div class="cart__item__content__settings__delete">
+                  <p class="deleteItem">Supprimer</p>
+              </div>
+          </div>
+          </div>
+       </article>`;
+  })
+}
+// calcul du total par produits
+function computeTotal(results) {
+  const reducer = (previousValue, currentValue) => previousValue + currentValue
+  const listDeTotalPrices = results.map(result => result["sousTotalProductPrice"])
+  const total = listDeTotalPrices.reduce(reducer)
+  return total
 }
 
-// Fonction récupération des prix des articles et somme totale
+//Injection de la somme totale dans le DOM
+function renderTotal(total) {
+  document.querySelector("#totalPrice").textContent = total;
+}
 
-let addPriceFunction = () => {
-  let found = basket.map((element) => element.totalPrice);
+async function main() {
+  const results = await Promise.all(
+    basket.map(
+      (productFromBasket) => getTotalProductPriceFromServer(productFromBasket)
+    )
+  )
+  renderProductsInBasket(results)
+  const total = computeTotal(results)
+  renderTotal(total)
+}
 
-  const reducer = (previousValue, currentValue) => previousValue + currentValue;
-  let somme = found.reduce(reducer);
-  return somme;
+main()
+
+// Fonction mise à jour du local storage products
+
+let majLocalStorageProducts = () => {
+  localStorage.setItem("basket", JSON.stringify(basket));
 };
 
 // Fonction récupération des quantités des articles et quantité totale
@@ -62,22 +97,20 @@ let addQuantFunction = () => {
   return quant;
 };
 
-// Fonction mise à jour du local storage products
+// Fonction récupération des prix des articles et somme totale
 
-let majLocalStorageProducts = () => {
-  localStorage.setItem("basket", JSON.stringify(basket));
+let addPriceFunction = () => {
+  let found = basket.map((element) => element.totalPrice);
+
+  const reducer = (previousValue, currentValue) => previousValue + currentValue;
+  let somme = found.reduce(reducer);
+  return somme;
 };
-
-// Fonction d'injection dans le DOM des donnés addPrice et addQuant
 
 function injectSommeQuant() {
   // Appel de la fonction addPriceFunction qui nous retourne la variable somme
   let sommeTotale = addPriceFunction();
-  //Injection de la somme totale dans le DOM
-  document.querySelector("#totalPrice").textContent = sommeTotale;
-
-  localStorage.setItem("sommeTotale", JSON.stringify(sommeTotale));
-
+  
   // Appel de la fonction addQuantFunction qui nous retourne la variable quant
   let quantTotale = addQuantFunction();
 
@@ -110,7 +143,7 @@ itemQuantity.forEach(function (quantity, i) {
   });
 });
 
-/******************************** SUPPRESSION DES ARTICLES****************************/
+/******************************** SUPPRESSION DES ARTICLES ****************************/
 
 // Récupération de la node list des boutons supprimer et transformation en tableau avec Array.from
 let supprimerSelection = Array.from(document.querySelectorAll(".deleteItem"));
@@ -328,5 +361,5 @@ if (dataFormulaire) {
   document.querySelector("#city").value = dataFormulaire.city;
   document.querySelector("#email").value = dataFormulaire.email;
 } else {
-  alerte("Le formulaire est vide");
+  alert("veillez complèter l'ensemble du formulaire");
 }

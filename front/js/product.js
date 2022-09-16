@@ -1,3 +1,5 @@
+const PRODUCT_LIMIT = 100
+
 // Sélection de l'ID colors
 const colorIdSelected = document.querySelector("#colors");
 
@@ -65,8 +67,6 @@ let productRegistered = (product) => {
     } else if (quantSelected.value == 0) {
       confirm("Veuillez sélectionner le nombre d'articles souhaités");
     } else {
-      alert("Votre article a bien été ajouté au panier");
-
       // Enregistrement des valeurs dans un objet optionProduct
 
       let optionProduct = {
@@ -76,9 +76,7 @@ let productRegistered = (product) => {
         altTxt: product.altTxt,
         description: product.description,
         color: colorIdSelected.value,
-        quantity: parseInt(quantSelected.value, 10),
-        price: product.price,
-        totalPrice: product.price * parseInt(quantSelected.value, 10),
+        quantity: parseInt(quantSelected.value, 10)
       };
   
       /******************************* Le Local Storage ********************/
@@ -96,18 +94,28 @@ let productRegistered = (product) => {
         // Si oui on ajoute juste la nouvelle quantité et la mise à jour du prix à l'article
         if (item) {
           item.quantity = item.quantity + optionProduct.quantity;
-          item.totalPrice += item.price * optionProduct.quantity;
-          localStorage.setItem("basket", JSON.stringify(localStorageProducts));
+          if (item.quantity > PRODUCT_LIMIT) {
+            alert("too much product")
+          } else {
+            localStorage.setItem("basket", JSON.stringify(localStorageProducts));
+            alert("Votre article va bien été ajouté au panier");
+          }
           return;
         }
         // Si l'article n'est pas déjà dans le local storage alors on push le nouvel article sélectionner
         localStorageProducts.push(optionProduct);
         localStorage.setItem("basket", JSON.stringify(localStorageProducts));
       } else {
-        //  Sinon création d'un tableau dans le lequel on push l'objet "optionProduct"
-        let newTabLocalStorage = [];
-        newTabLocalStorage.push(optionProduct);
-        localStorage.setItem("basket", JSON.stringify(newTabLocalStorage));
+        if (optionProduct.quantity > PRODUCT_LIMIT) {
+          alert("too much product")
+        } else {
+          //  Sinon création d'un tableau dans le lequel on push l'objet "optionProduct"
+          let newTabLocalStorage = [];
+          newTabLocalStorage.push(optionProduct);
+          localStorage.setItem("basket", JSON.stringify(newTabLocalStorage));
+          alert("Votre article va bien été ajouté au panier");
+        }
+        
       }
     }
   });
