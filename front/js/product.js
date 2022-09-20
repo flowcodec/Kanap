@@ -94,11 +94,11 @@ let productRegistered = (product) => {
         // Si oui on ajoute juste la nouvelle quantité et la mise à jour du prix à l'article
         if (item) {
           item.quantity = item.quantity + optionProduct.quantity;
+          alert("Votre article va bien été ajouté au panier");
           if (item.quantity > PRODUCT_LIMIT) {
-            alert("too much product")
+            alert("Rectification vous ne pouvez pas dépasser 100 articles du même produit")
           } else {
             localStorage.setItem("basket", JSON.stringify(localStorageProducts));
-            alert("Votre article va bien été ajouté au panier");
           }
           return;
         }
