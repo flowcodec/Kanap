@@ -1,4 +1,5 @@
 // Affichage du numéro de commande
+
 const getProductId = () => {
     return new URL(location.href).searchParams.get("id");
   };

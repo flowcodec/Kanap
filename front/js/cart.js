@@ -40,11 +40,11 @@ function renderProductsInBasket(results) {
                   <h2>${productFromBasket.name}</h2>
                   <p>Couleur du produit: ${productFromBasket.color}</p>
                   <p>Prix unitaire: ${productFromServer.price}€</p>
-              </div>
+                  <div id="PrixUnitaire" style="display:none">${productFromServer.price}</div>
           <div class="cart__item__content__settings">
               <div id="jojo" class="cart__item__content__settings__quantity">
                   <p id="quantité">Qté : ${productFromBasket.quantity} </p>
-                  <p id="sousTotal">Prix total pour cet article: ${sousTotalProductPrice}€</p> 
+                  <p id="sousTotal">Prix total pour cet article: ${sousTotalProductPrice}€</p>
                   <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productFromBasket.quantity}">
               </div>
               <div class="cart__item__content__settings__delete">
@@ -74,9 +74,11 @@ async function main() {
       (productFromBasket) => getTotalProductPriceFromServer(productFromBasket)
     )
   )
-  renderProductsInBasket(results)
-  const total = computeTotal(results)
-  renderTotal(total)
+  renderProductsInBasket(results);
+  const total = computeTotal(results);
+  deleteProduct();
+  reCalculate();
+  renderTotal(total);
 }
 
 main()
@@ -110,49 +112,56 @@ let addPriceFunction = () => {
 function injectSommeQuant() {
   // Appel de la fonction addPriceFunction qui nous retourne la variable somme
   let sommeTotale = addPriceFunction();
-  
+ 
   // Appel de la fonction addQuantFunction qui nous retourne la variable quant
   let quantTotale = addQuantFunction();
 
   //injection de la quantité des articles dans le DOM
   document.querySelector("#totalQuantity").textContent = quantTotale;
-
+  document.querySelector("#totalPrice").textContent = sommeTotale;
   majLocalStorageProducts();
 }
 
-injectSommeQuant();
+// Fonction de mise à jour des sous totaux.
+function reCalculate(){
 
-let itemQuantity = Array.from(document.querySelectorAll(".itemQuantity"));
-let sousTotal = Array.from(document.querySelectorAll("#sousTotal"));
-let screenQuantity = Array.from(document.querySelectorAll("#quantité"));
+  let itemQuantity = Array.from(document.querySelectorAll(".itemQuantity"));
+  let sousTotal = Array.from(document.querySelectorAll("#sousTotal"));
+  let screenQuantity = Array.from(document.querySelectorAll("#quantité"));
+  let PrixUnitaire = Array.from(document.querySelectorAll("#PrixUnitaire"));
 
-itemQuantity.forEach(function (quantity, i) {
-  quantity.addEventListener("change", (event) => {
-    event.preventDefault();
-    let newArticlePrice = quantity.value * basket[i].price;
+  itemQuantity.forEach(function (quantity, i) {
+    quantity.addEventListener("change", (event) => {
+      event.preventDefault();
 
-
-    screenQuantity[i].textContent = "Qté: " + quantity.value;
-    basket[i].quantity = parseInt(quantity.value, 10);
-
-    sousTotal[i].textContent =
-      "Prix total pour cet article: " + newArticlePrice + " €";
-    basket[i].totalPrice = newArticlePrice;
+    let newArticlePrice = quantity.value * PrixUnitaire[i].innerHTML
+     screenQuantity[i].textContent = "Qté: " + quantity.value;
+      basket[i].quantity = parseInt(quantity.value, 10);
+      sousTotal[i].textContent =
+        "Prix total pour cet article: " + newArticlePrice + " €";
+      basket[i].totalPrice = newArticlePrice;
 
     injectSommeQuant();
   });
 });
+}
 
 /******************************** SUPPRESSION DES ARTICLES ****************************/
 
 // Récupération de la node list des boutons supprimer et transformation en tableau avec Array.from
-let supprimerSelection = Array.from(document.querySelectorAll(".deleteItem"));
 
+
+window.onload = (event) => {
+//let supprimerSelectionTest = (document.getElementById("test-1"));
+document.getElementById("1").addEventListener("click", () => { alert("tada"); });
+}
 // Nouveau tableau pour récupérer le tableau basket existant et contrôler les suppression
 let tabControlDelete = [];
 
 // Fonction de suppression des articles
 function deleteProduct() {
+    let supprimerSelection = Array.from(document.querySelectorAll(".deleteItem"));
+
   for (let i = 0; i < supprimerSelection.length; i++) {
     // Écoute d'évènements au click sur le tableau des boutons supprimer
     supprimerSelection[i].addEventListener("click", () => {
@@ -174,7 +183,7 @@ function deleteProduct() {
   }
 }
 
-deleteProduct();
+
 
 /*************************************  LE FORMULAIRE ********************************/
 
