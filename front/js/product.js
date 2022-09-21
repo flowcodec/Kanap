@@ -57,18 +57,19 @@ let productSelected = (product) => {
 // Fonction qui enregistre dans un objet les options de l'utilisateur au click sur le bouton ajouter au panier
 
 let productRegistered = (product) => {
-  // Écoute de l'évènement click sur le bouton ajouter
 
+  // Écoute de l'évènement click sur le bouton ajouter
   btnSend.addEventListener("click", (event) => {
     event.preventDefault();
 
+    //on vérifie que la couleur et le nombre ont bien été choisis 
     if (colorIdSelected.value == false) {
       confirm("Veuillez sélectionner une couleur");
     } else if (quantSelected.value == 0) {
       confirm("Veuillez sélectionner le nombre d'articles souhaités");
     } else {
-      // Enregistrement des valeurs dans un objet optionProduct
 
+      // Enregistrement des valeurs dans un objet optionProduct
       let optionProduct = {
         id: product._id,
         name: product.name,

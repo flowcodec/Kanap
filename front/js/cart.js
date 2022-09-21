@@ -42,7 +42,7 @@ function renderProductsInBasket(results) {
                   <p>Prix unitaire: ${productFromServer.price}€</p>
                   <div id="PrixUnitaire" style="display:none">${productFromServer.price}</div>
           <div class="cart__item__content__settings">
-              <div id="jojo" class="cart__item__content__settings__quantity">
+              <div class="cart__item__content__settings__quantity">
                   <p id="quantité">Qté : ${productFromBasket.quantity} </p>
                   <p id="sousTotal">Prix total pour cet article: ${sousTotalProductPrice}€</p>
                   <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productFromBasket.quantity}">
@@ -84,7 +84,6 @@ async function main() {
 main()
 
 // Fonction mise à jour du local storage products
-
 let majLocalStorageProducts = () => {
   localStorage.setItem("basket", JSON.stringify(basket));
 };
@@ -122,25 +121,25 @@ function injectSommeQuant() {
   majLocalStorageProducts();
 }
 
-// Fonction de mise à jour des sous totaux.
+injectSommeQuant();
+
+// Fonction affichant les changements et calculs des nouveaux prix et quantitées
 function reCalculate(){
+let itemQuantity = Array.from(document.querySelectorAll(".itemQuantity"));
+let sousTotal = Array.from(document.querySelectorAll("#sousTotal"));
+let screenQuantity = Array.from(document.querySelectorAll("#quantité"));
+let PrixUnitaire = Array.from(document.querySelectorAll("#PrixUnitaire"));
 
-  let itemQuantity = Array.from(document.querySelectorAll(".itemQuantity"));
-  let sousTotal = Array.from(document.querySelectorAll("#sousTotal"));
-  let screenQuantity = Array.from(document.querySelectorAll("#quantité"));
-  let PrixUnitaire = Array.from(document.querySelectorAll("#PrixUnitaire"));
-
-  itemQuantity.forEach(function (quantity, i) {
-    quantity.addEventListener("change", (event) => {
-      event.preventDefault();
-
+itemQuantity.forEach(function (quantity, i) {
+  quantity.addEventListener("change", (event) => {
+    event.preventDefault();
     let newArticlePrice = quantity.value * PrixUnitaire[i].innerHTML
-     screenQuantity[i].textContent = "Qté: " + quantity.value;
-      basket[i].quantity = parseInt(quantity.value, 10);
-      sousTotal[i].textContent =
-        "Prix total pour cet article: " + newArticlePrice + " €";
-      basket[i].totalPrice = newArticlePrice;
-
+    screenQuantity[i].textContent = "Qté: " + quantity.value;
+    basket[i].quantity = parseInt(quantity.value, 10);
+    injectSommeQuant()
+    sousTotal[i].textContent =
+      "Prix total pour cet article: " + newArticlePrice + " €";
+    basket[i].totalPrice = newArticlePrice;
     injectSommeQuant();
   });
 });
@@ -149,12 +148,8 @@ function reCalculate(){
 /******************************** SUPPRESSION DES ARTICLES ****************************/
 
 // Récupération de la node list des boutons supprimer et transformation en tableau avec Array.from
+let supprimerSelection = Array.from(document.querySelectorAll(".deleteItem"));
 
-
-window.onload = (event) => {
-//let supprimerSelectionTest = (document.getElementById("test-1"));
-document.getElementById("1").addEventListener("click", () => { alert("tada"); });
-}
 // Nouveau tableau pour récupérer le tableau basket existant et contrôler les suppression
 let tabControlDelete = [];
 
